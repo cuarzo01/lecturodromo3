@@ -1,0 +1,459 @@
+<html><head><base href="https://figurative-language-vending.com">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máquina Expendedora de Figuras Retóricas - Juan Luis Fuentes</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+    padding: 20px;
+  }
+  .vending-machine {
+    width: 800px;
+    height: 900px;
+    background: linear-gradient(45deg, #2c3e50, #34495e);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .display {
+    background-color: #ecf0f1;
+    height: 200px;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    overflow-y: auto;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
+  .categories {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .category {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .category:hover {
+    background-color: #2980b9;
+  }
+  .category.active {
+    background-color: #2980b9;
+  }
+  .buttons {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 550px;
+  }
+  .buttons.active {
+    display: grid;
+  }
+  button {
+    padding: 10px 5px;
+    font-size: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background-color: #ecf0f1;
+    color: #2c3e50;
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+  }
+  button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .coin-slot {
+    width: 80px;
+    height: 10px;
+    background-color: #7f8c8d;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border-radius: 5px;
+  }
+  .dispenser {
+    width: 200px;
+    height: 40px;
+    background-color: #7f8c8d;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0 0 10px 10px;
+  }
+</style>
+</head>
+<body>
+<div class="vending-machine">
+  <div class="coin-slot"></div>
+  <div class="display" id="display">Seleccione una categoría y luego una figura retórica</div>
+  <div class="categories">
+    <div class="category" onclick="showCategory('diccion')">Figuras de Dicción</div>
+    <div class="category" onclick="showCategory('pensamiento')">Figuras de Pensamiento</div>
+    <div class="category" onclick="showCategory('tropos')">Tropos</div>
+  </div>
+  <div class="buttons" id="buttons"></div>
+  <div class="dispenser"></div>
+</div>
+
+<script>
+const figurativeLanguage = {
+  diccion: {
+    "Aliteración": [
+      ["Los peces pesan poco.", "Repite el sonido consonántico 'p' al inicio de palabras cercanas."],
+      ["El ruido con que rueda la ronca tempestad.", "Repite el sonido 'r' creando un efecto sonoro que evoca el ruido de la tempestad."],
+      ["Tres tristes tigres tragaban trigo en un trigal.", "Repite el sonido 'tr' al inicio de palabras, creando un trabalenguas."],
+      ["El viento va veloz, volando sobre el valle.", "Repite el sonido 'v' al inicio de palabras, evocando la velocidad del viento."],
+      ["Sibilante serpiente silba sigilosamente.", "Repite el sonido 's' imitando el silbido de una serpiente."],
+      ["La luna luce linda, luciendo luminosa.", "Repite el sonido 'l' creando un efecto de suavidad y luminosidad."],
+      ["Cuchicheaba la chicharra bajo la chumbera.", "Repite el sonido 'ch' imitando el sonido de una chicharra."],
+      ["Frío febril de febrero, furia feroz.", "Repite el sonido 'f' creando un efecto de intensidad."],
+      ["Mirando misteriosamente, murmuró melodías mágicas.", "Repite el sonido 'm' creando un efecto de misterio."],
+      ["Susurros suaves se suceden sigilosamente.", "Repite el sonido 's' evocando un susurro."]
+    ],
+    "Anáfora": [
+      ["Ni te tengo, ni te olvido.", "Repite 'ni te' al inicio de cada frase."],
+      ["Verde que te quiero verde. Verde viento. Verdes ramas.", "Repite 'verde' al inicio de cada frase, enfatizando el color."],
+      ["Hoy no tengo ganas de nada. Hoy no quiero hablar. Hoy no deseo salir.", "Repite 'hoy no' al inicio de cada frase, reforzando el estado de ánimo."],
+      ["Todo pasa y todo queda, pero lo nuestro es pasar. Pasar haciendo caminos, caminos sobre el mar.", "Repite 'pasar' y 'caminos', enfatizando la idea del viaje."],
+      ["Aquí te espero, aquí te aguardo, aquí te añoro.", "Repite 'aquí te' al inicio de cada frase, enfatizando la espera."],
+      ["Soñé la vida, soñé el amor, soñé la gloria.", "Repite 'soñé' al inicio de cada frase, subrayando la idea del sueño."],
+      ["Eres mi luz, eres mi guía, eres mi norte.", "Repite 'eres mi' al inicio de cada frase, enfatizando la importancia de la persona."],
+      ["Nunca te rindas, nunca desistas, nunca pierdas la esperanza.", "Repite 'nunca' al inicio de cada frase, reforzando la idea de perseverancia."],
+      ["Siempre adelante, siempre con fuerza, siempre con valor.", "Repite 'siempre' al inicio de cada frase, enfatizando la constancia."],
+      ["Vive el presente, vive el momento, vive la vida.", "Repite 'vive' al inicio de cada frase, subrayando la importancia de vivir el ahora."]
+    ],
+    "Epífora": [
+      ["Cuando quieras, como quieras, donde quieras.", "Repite 'quieras' al final de cada frase."],
+      ["Lo pensé ayer, lo pienso hoy, lo pensaré mañana.", "Repite una variación de 'pensar' al final de cada frase."],
+      ["No hay mayor dolor que recordar el tiempo feliz en la miseria.", "Repite 'miseria' al final, enfatizando el contraste."],
+      ["Vivo sin vivir en mí, y tan alta vida espero, que muero porque no muero.", "Repite 'muero' al final, intensificando el sentimiento."],
+      ["En la calle, en la casa, en el trabajo.", "Repite la estructura 'en la/el' al final de cada frase."],
+      ["Lo hice por ti, lo hago por ti, lo haré por ti.", "Repite 'por ti' al final de cada frase, enfatizando la dedicación."],
+      ["Sueña, lucha, persevera.", "Repite la terminación '-a' en cada verbo, creando ritmo."],
+      ["Con fe, con esperanza, con amor.", "Repite 'con' al inicio y un sentimiento positivo al final."],
+      ["Ayer te vi, hoy te veo, mañana te veré.", "Repite una variación de 'ver' al final de cada frase."],
+      ["Siempre estuviste, siempre estás, siempre estarás.", "Repite una variación de 'estar' al final de cada frase."]
+    ],
+    "Concatenación": [
+      ["Del amor al odio, del odio a la venganza.", "Une frases repitiendo al final de una el inicio de la siguiente."],
+      ["Nace una flor, la flor da un fruto, el fruto cae, cae la semilla.", "Cada frase comienza con el final de la anterior."],
+      ["El miedo lleva a la ira, la ira lleva al odio, el odio lleva al sufrimiento.", "Cada frase termina con el inicio de la siguiente."],
+      ["Vino, vi y vencí.", "Cada palabra comienza con la letra final de la anterior."],
+      ["La libertad engendra creatividad, la creatividad engendra riqueza, la riqueza engendra poder.", "Repite 'engendra' conectando las ideas."],
+      ["El tiempo pasa, pasa la vida, la vida se acaba.", "Une las frases repitiendo palabras clave."],
+      ["Sueña alto, alto volarás, volarás lejos.", "Conecta las frases repitiendo la última palabra como primera de la siguiente."],
+      ["Aprende a vivir, vive para aprender, aprender es crecer.", "Une las ideas repitiendo los verbos principales."],
+      ["La palabra se hace verso, el verso se hace canción, la canción se hace alma.", "Conecta las frases repitiendo 'se hace'."],
+      ["El agua fluye, fluye el río, el río llega al mar.", "Une las ideas repitiendo palabras clave al final y principio de las frases."]
+    ],
+    "Retruécano": [
+      ["No es que viva para comer, sino que como para vivir.", "Invierte los términos 'vivir' y 'comer' para contrastar ideas."],
+      ["No se debe querer lo que se vive, sino vivir lo que se quiere.", "Intercambia 'querer' y 'vivir' para enfatizar un concepto."],
+      ["Es mejor morir por algo que vivir por nada.", "Contrasta 'morir' y 'vivir' con 'algo' y 'nada'."],
+      ["No es la belleza lo que embellece, sino el amor lo que hace bella a la belleza.", "Juega con las palabras 'belleza' y 'embellece' para profundizar el concepto."],
+      ["No busques que te quieran, quiere que te busquen.", "Invierte 'buscar' y 'querer' para dar un consejo."],
+      ["No es lo mismo tener el deber de amar que amar por deber.", "Intercambia 'deber' y 'amar' para mostrar dos perspectivas diferentes."],
+      ["No dejes que tus miedos se conviertan en tus límites, convierte tus límites en tus miedos.", "Invierte 'miedos' y 'límites' para motivar."],
+      ["No es que el tiempo pase, somos nosotros los que pasamos en el tiempo.", "Juega con el concepto de 'pasar' y 'tiempo' para reflexionar sobre la existencia."],
+      ["No se trata de buscar la felicidad, sino de ser feliz mientras se busca.", "Invierte la relación entre 'buscar' y 'felicidad' para dar una nueva perspectiva."],
+      ["No es el camino lo que es difícil, es lo difícil lo que se convierte en camino.", "Intercambia 'camino' y 'difícil' para dar una visión filosófica."]
+    ],
+    "Calambur": [
+      ["Plata no es, oro no es.", "Al unir las sílabas se forma 'plátano es'."],
+      ["¿Cómo te llamas? Yo me llamo León. Yo melón.", "Juega con 'me llamo León' y 'melón'."],
+      ["Entre el clavel blanco y la rosa roja, su majestad escoja.", "Al unir las últimas sílabas se forma 'su majestad es coja'."],
+      ["Dábale arroz a la zorra el abad.", "Es un palíndromo que también funciona como calambur al separar 'Dába' y 'le arroz'."],
+      ["¡Qué grosero! No, qué gro sero.", "Juega con 'grosero' y 'gro sero' (seda gruesa)."],
+      ["Este banco está ocupado por el padre de un niño. Este banco está ocupado por el padre de un ni-ño.", "Cambia el significado al separar 'niño' en 'ni ño'."],
+      ["Ven, toma té. Ventoma té.", "Cambia el significado al unir 'Ven, toma' en 'Ventoma'."],
+      ["Yo lo coloco y él lo colo-có.", "Juega con 'coloco' y 'colo có' (referencia al color)."],
+      ["A este colososo-lo le dieron un papel.", "Cambia el significado al separar 'coloso' en 'colo so-lo'."],
+      ["Éste sí que es conde y éste sí que esconde.", "Juega con 'es conde' y 'esconde'."]
+    ],
+    "Paronomasia": [
+      ["Quien no te conozca, que te compre.", "Usa 'conozca' y 'compre', palabras con sonidos similares pero significados diferentes."],
+      ["El que nada no se ahoga.", "Juega con los significados de 'nada' (nadar y nada)."],
+      ["Errar es humano, pero echar la culpa a otro es más humano todavía.", "Utiliza 'errar' y 'echar' que suenan similar."],
+      ["Como te ven, te tratan; si te ven mal, te maltratan.", "Juega con 'tratan' y 'maltratan'."],
+      ["Del dicho al hecho hay mucho trecho.", "Utiliza 'hecho' y 'trecho' que tienen sonidos similares."],
+      ["A palabras necias, oídos sordos.", "Usa 'necias' y 'sordos' que riman y tienen cierta similitud fonética."],
+      ["Donde dije digo, digo Diego.", "Juega con las palabras 'dije', 'digo' y 'Diego'."],
+      ["Poderoso caballero es don Dinero.", "Utiliza 'caballero' y 'Dinero' que tienen cierta similitud sonora."],
+      ["Cría cuervos y te sacarán los ojos.", "Usa 'cuervos' y 'ojos' que tienen cierta similitud fonética."],
+      ["A buen entendedor, pocas palabras bastan.", "Utiliza 'entendedor' y 'palabras' que tienen cierta similitud sonora."]
+    ],
+    "Políptoton": [
+      ["El que sabe, sabe, y el que no, aprende.", "Repite 'sabe' con diferentes funciones gramaticales."],
+      ["Amó el amor, vivió la vida, soñó el sueño.", "Repite las palabras 'amor', 'vida' y 'sueño' como verbo y sustantivo."],
+      ["Cuando el río suena, agua lleva, y cuando el agua suena, río lleva.", "Repite 'suena' y cambia las funciones de 'río' y 'agua'."],
+      ["Vive viviendo, ama amando, sueña soñando.", "Repite los verbos en diferentes formas."],
+      ["El tiempo todo lo cura, y el que no lo cura, lo mata.", "Repite 'cura' como verbo y cambia su función."],
+      ["Quien siembra vientos, cosecha tempestades, y quien siembra tempestades, cosecha destrucción.", "Repite 'siembra' y 'cosecha' cambiando sus objetos."],
+      ["Pienso, luego existo; existo, luego pienso.", "Repite 'pienso' y 'existo' invirtiendo su orden."],
+      ["Caminante, no hay camino, se hace camino al andar.", "Repite 'camino' como sustantivo y como parte del verbo 'caminar'."],
+      ["La vida es sueño, y los sueños, sueños son.", "Repite 'sueño' y 'sueños' en diferentes funciones."],
+      ["Luchando luchas, perdiendo pierdes, pero ganando, ¡oh, ganando ganas tanto!", "Repite los verbos en diferentes formas para enfatizar la acción."]
+    ],
+    "Quiasmo": [
+      ["Cuando quiero llorar, no lloro, y a veces lloro sin querer.", "Dispone en orden inverso 'quiero llorar' y 'lloro sin querer'."],
+      ["Se debe comer para vivir, no vivir para comer.", "Invierte el orden de 'comer' y 'vivir'."],
+      ["Pregúntate no qué puede hacer tu país por ti, sino qué puedes hacer tú por tu país.", "Invierte el orden de 'país' y 'tú'."],
+      ["No busques momentos perfectos, haz perfectos los momentos.", "Cambia el orden de 'momentos' y 'perfectos'."],
+      ["Es mejor morir de pie que vivir de rodillas.", "Invierte el orden de 'morir/vivir' y 'de pie/de rodillas'."],
+      ["No midas el hombre por su altura, mide su altura por el hombre.", "Cambia el orden de 'hombre' y 'altura'."],
+      ["La medida del amor es amar sin medida.", "Invierte el orden de 'medida' y 'amar'."],
+      ["No es la belleza lo que embellece, sino el amor lo que embellece a la belleza.", "Cambia el orden de 'belleza' y 'embellece'."],
+      ["El tiempo es oro, pero el oro no compra el tiempo.", "Invierte el orden de 'tiempo' y 'oro'."],
+      ["No dejes que la vida te pase, pásale tú a la vida.", "Cambia el orden de 'vida' y el pronombre 'te/tú'."]
+    ]
+  },
+  pensamiento: {
+    "Antítesis": [
+      ["Vivo sin vivir en mí.", "Contrapone 'vivo' con 'sin vivir'."],
+      ["Es tan corto el amor y tan largo el olvido.", "Contrasta 'corto' con 'largo' y 'amor' con 'olvido'."],
+      ["Lo poco que sé, lo sé con dudas.", "Opone 'saber' con 'dudar'."],
+      ["El silencio es el grito más fuerte.", "Contrasta 'silencio' con 'grito'."],
+      ["La prisa es la enemiga de la perfección.", "Opone 'prisa' a 'perfección'."],
+      ["Es mejor morir de pie que vivir de rodillas.", "Contrasta 'morir' con 'vivir' y 'de pie' con 'de rodillas'."],
+      ["El que no vive para servir, no sirve para vivir.", "Opone 'vivir para servir' con 'servir para vivir'."],
+      ["La vida es una tragedia cuando se ve en primer plano, pero una comedia en plano general.", "Contrasta 'tragedia' con 'comedia'."],
+      ["El pesimista se queja del viento; el optimista espera que cambie; el realista ajusta las velas.", "Opone las actitudes del pesimista, optimista y realista."],
+      ["Donde hay mucha luz, las sombras se oscurecen.", "Contrasta 'luz' con 'sombras' y 'oscuridad'."]
+    ],
+    "Paradoja": [
+      ["Solo sé que no sé nada.", "Presenta la contradicción de saber que no se sabe."],
+      ["Para estar unidos hay que estar bien separados.", "Contrapone 'unidos' con 'separados'."],
+      ["La única constante es el cambio.", "Opone 'constante' a 'cambio'."],
+      ["El silencio es el grito más fuerte.", "Contradice la naturaleza del silencio con la de un grito."],
+      ["Para ganar, a veces hay que saber perder.", "Contrasta 'ganar' con 'perder'."],
+      ["La muerte es el comienzo de la inmortalidad.", "Opone 'muerte' a 'inmortalidad'."],
+      ["A veces hay que perder para ganar.", "Contrapone 'perder' con 'ganar'."],
+      ["El que no arriesga, no gana, pero tampoco pierde.", "Presenta la contradicción entre arriesgar y la seguridad."],
+      ["Lo único permanente es la impermanencia.", "Opone 'permanente' a 'impermanencia'."],
+      ["Para ser libre, hay que someterse a la ley.", "Contrasta 'libre' con 'someterse'."]
+    ],
+    "Hipérbole": [
+      ["Te lo he dicho un millón de veces.", "Exagera la cantidad de veces que algo ha sido dicho."],
+      ["Muero de hambre.", "Exagera la sensación de hambre."],
+      ["Este bolso pesa una tonelada.", "Exagera el peso del bolso."],
+      ["Me ha costado un ojo de la cara.", "Exagera el costo de algo."],
+      ["Hace un frío que pela.", "Exagera la sensación de frío."],
+      ["Es más lento que una tortuga.", "Exagera la lentitud comparándola con una tortuga."],
+      ["Estoy tan cansado que podría dormir cien años.", "Exagera el tiempo de sueño necesario."],
+      ["Tiene un corazón de oro.", "Exagera la bondad de alguien."],
+      ["Me muero de la risa.", "Exagera el efecto de la risa."],
+      ["Es un mar de lágrimas.", "Exagera la cantidad de lágrimas derramadas."]
+    ],
+    "Lítote": [
+      ["No es mala idea.", "Afirma algo negando lo contrario, en este caso, sugiere que es una buena idea."],
+      ["No es poco lo que has logrado.", "Sugiere que se ha logrado mucho."],
+      ["No es desagradable.", "Sugiere que es agradable."],
+      ["No me disgustaría ir.", "Sugiere que le gustaría ir."],
+      ["No es un mal restaurante.", "Sugiere que es un buen restaurante."],
+      ["No es que sea un genio, pero...", "Sugiere que es bastante inteligente."],
+      ["No puedo quejarme.", "Sugiere que está bastante satisfecho."],
+      ["No es lo peor que podría pasar.", "Sugiere que la situación no es tan mala."],
+      ["No es que sea feo...", "Sugiere que no es particularmente atractivo."],
+      ["No me opongo a la idea.", "Sugiere que está de acuerdo con la idea."]
+    ],
+    "Prosopopeya": [
+      ["La luna me sonríe.", "Atribuye la acción humana de sonreír a la luna."],
+      ["El viento susurra secretos.", "Atribuye la acción de susurrar al viento."],
+      ["Las flores bailan con la brisa.", "Atribuye la acción de bailar a las flores."],
+      ["El mar ruge furioso.", "Atribuye emociones humanas al mar."],
+      ["Las estrellas guiñan en el cielo nocturno.", "Atribuye la acción de guiñar a las estrellas."],
+      ["La ciudad despierta con el amanecer.", "Atribuye la acción de despertar a la ciudad."],
+      ["El reloj canta las horas.", "Atribuye la acción de cantar al reloj."],
+      ["La primavera pinta de colores el paisaje.", "Atribuye la acción de pintar a la primavera."],
+      ["El sol acaricia las montañas.", "Atribuye la acción de acariciar al sol."],
+      ["Los árboles susurran historias antiguas.", "Atribuye la acción de susurrar historias a los árboles."]
+    ],
+    "Ironía": [
+      ["¡Qué inteligente eres!", "Dicho a alguien que acaba de cometer un error obvio."],
+      ["¡Qué bonito día!", "Dicho durante una tormenta."],
+      ["¡Genial, justo lo que necesitaba!", "Dicho ante una situación problemática."],
+      ["¡Vaya, qué sorpresa!", "Dicho ante algo totalmente previsible."],
+      ["¡Qué suerte la mía!", "Dicho ante una serie de eventos desafortunados."],
+      ["¡Qué gran idea!", "Dicho ante una sugerencia claramente mala."],
+      ["¡Qué rápido eres!", "Dicho a alguien que tarda mucho en hacer algo."],
+      ["¡Qué generoso!", "Dicho a alguien que actúa de manera egoísta."],
+      ["¡Qué valiente!", "Dicho a alguien que muestra cobardía."],
+      ["¡Qué modesto!", "Dicho a alguien que presume excesivamente."]
+    ],
+    "Eufemismo": [
+      ["Pasó a mejor vida.", "Suaviza la expresión 'murió'."],
+      ["Está en el paro.", "Suaviza la expresión 'está desempleado'."],
+      ["Tiene sus años.", "Suaviza la expresión 'es viejo'."],
+      ["Está un poco pasado de peso.", "Suaviza la expresión 'está gordo'."],
+      ["No es muy agraciado.", "Suaviza la expresión 'es feo'."],
+      ["Está indispuesto.", "Suaviza la expresión 'está enfermo'."],
+      ["Hubo un conflicto armado.", "Suaviza la expresión 'hubo una guerra'."],
+      ["Se quedó dormido para siempre.", "Suaviza la expresión 'murió'."],
+      ["Está económicamente desafiado.", "Suaviza la expresión 'es pobre'."],
+      ["Fue reasignado.", "Suaviza la expresión 'fue despedido'."]
+    ],
+    "Preterición": [
+      ["No mencionaré su falta de puntualidad.", "Menciona indirectamente la falta de puntualidad."],
+      ["No hablaré de su incompetencia.", "Menciona indirectamente la incompetencia."],
+      ["Ni siquiera voy a mencionar su mala actitud.", "Menciona indirectamente la mala actitud."],
+      ["No diré nada sobre sus malos hábitos.", "Menciona indirectamente los malos hábitos."],
+      ["Me abstendré de comentar sobre su falta de ética.", "Menciona indirectamente la falta de ética."],
+      ["No voy a entrar en detalles sobre su pasado.", "Menciona indirectamente un pasado cuestionable."],
+      ["Evitaré hablar de su terrible gusto en la moda.", "Menciona indirectamente el mal gusto en la moda."],
+      ["No es mi intención señalar sus errores.", "Menciona indirectamente la existencia de errores."],
+      ["No quiero hacer hincapié en su falta de experiencia.", "Menciona indirectamente la falta de experiencia."],
+      ["Me niego a discutir su comportamiento inapropiado.", "Menciona indirectamente el comportamiento inapropiado."]
+    ],
+    "Apóstrofe": [
+      ["¡Oh fortuna, por qué me abandonas!", "Se dirige a la fortuna como si fuera una entidad presente."],
+      ["¡Oh muerte, dónde está tu victoria!", "Se dirige a la muerte como si fuera una entidad presente."],
+      ["¡Oh luna, testigo de mis penas!", "Se dirige a la luna como si pudiera escuchar."],
+      ["¡Oh tiempo, detén tu marcha!", "Se dirige al tiempo como si pudiera controlarlo."],
+      ["¡Oh libertad, cuánto te añoro!", "Se dirige a la libertad como si fuera una persona."],
+      ["¡Oh patria mía, cuánto has sufrido!", "Se dirige a la patria como si fuera una entidad consciente."],
+      ["¡Oh amor, por qué eres tan cruel!", "Se dirige al amor como si fuera una entidad presente."],
+      ["¡Oh soledad, mi fiel compañera!", "Se dirige a la soledad como si fuera una persona."],
+      ["¡Oh mar, cuántos secretos guardas!", "Se dirige al mar como si pudiera responder."],
+      ["¡Oh juventud, no te vayas tan pronto!", "Se dirige a la juventud como si fuera una entidad que pudiera quedarse o irse."]
+    ]
+  },
+  tropos: {
+    "Metáfora": [
+      ["Sus ojos son dos luceros.", "Identifica los ojos con estrellas brillantes."],
+      ["La vida es un teatro.", "Identifica la vida con una representación teatral."],
+      ["El tiempo es oro.", "Identifica el tiempo con algo valioso como el oro."],
+      ["Sus palabras eran puñales.", "Identifica las palabras hirientes con armas."],
+      ["La memoria es un almacén de recuerdos.", "Identifica la memoria con un lugar de almacenamiento."],
+      ["La primavera de la vida.", "Identifica la juventud con la primavera."],
+      ["El otoño de su existencia.", "Identifica la vejez con el otoño."],
+      ["Su sonrisa es un rayo de sol.", "Identifica una sonrisa alegre con la luz del sol."],
+      ["La ciudad es una jungla de asfalto.", "Identifica la ciudad con una jungla, pero de concreto."],
+      ["Sus cabellos son hebras de oro.", "Identifica el cabello rubio con hilos de oro."]
+    ],
+    "Metonimia": [
+      ["Se bebió todo el vaso.", "Usa el continente (vaso) por el contenido (bebida)."],
+      ["Tiene buen ojo para los negocios.", "Usa una parte del cuerpo (ojo) por una habilidad."],
+      ["La Casa Blanca anunció nuevas medidas.", "Usa el lugar por la institución o las personas."],
+      ["Respeta las canas.", "Usa un efecto de la edad (canas) por la vejez o la experiencia."],
+      ["Se ganó el pan con el sudor de su frente.", "Usa el efecto (sudor) por el trabajo."],
+      ["Tiene mucha plata.", "Usa el material (plata) por el dinero."],
+      ["Leyó a Cervantes.", "Usa el autor por su obra."],
+      ["Siempre lleva puesto un Rolex.", "Usa la marca por el producto."],
+      ["Prefiero el acero al plástico.", "Usa el material por el objeto."],
+      ["Tomó tres copas.", "Usa el recipiente por su contenido."]
+    ],
+    "Sinécdoque": [
+      ["Necesitamos más manos para este trabajo.", "Usa la parte (manos) por el todo (personas)."],
+      ["El pan nuestro de cada día.", "Usa una especie (pan) por el género (alimento)."],
+      ["No tengo techo.", "Usa la parte (techo) por el todo (casa)."],
+      ["Ganó el oro en las Olimpiadas.", "Usa el material (oro) por el objeto (medalla de oro)."],
+      ["Es el mejor cerebro del departamento.", "Usa una parte (cerebro) por el todo (persona inteligente)."],
+      ["Todos los mortales debemos pagar impuestos.", "Usa una característica (mortal) por el todo (seres humanos)."],
+      ["No tiene ni un cobre.", "Usa el material (cobre) por el dinero en general."],
+      ["Es un cuatro ruedas.", "Usa una parte (ruedas) por el todo (automóvil)."],
+      ["Hay que respetar la toga.", "Usa una prenda (toga) por la profesión (jueces)."],
+      ["El acero venció al plástico.", "Usa el material por el objeto (espada vs. escudo)."]
+    ],
+    "Símil": [
+      ["Eres libre como el viento.", "Compara la libertad con el movimiento del viento."],
+      ["Duerme como un tronco.", "Compara el sueño profundo con la inmovilidad de un tronco."],
+      ["Es astuto como un zorro.", "Compara la astucia de una persona con la de un zorro."],
+      ["Sus ojos brillan como estrellas.", "Compara el brillo de los ojos con el de las estrellas."],
+      ["Corre tan rápido como una gacela.", "Compara la velocidad de una persona con la de una gacela."],
+      ["Es tan frío como el hielo.", "Compara la frialdad emocional con la temperatura del hielo."],
+      ["Es suave como la seda.", "Compara la suavidad de algo con la textura de la seda."],
+      ["Está más claro que el agua.", "Compara la claridad de una idea con la transparencia del agua."],
+      ["Es fuerte como un roble.", "Compara la fortaleza de una persona con la solidez de un roble."],
+      ["Se mueve como un pez en el agua.", "Compara la comodidad en un entorno con la de un pez nadando."]
+    ],
+    "Alegoría": [
+      ["En 'La República' de Platón, la alegoría de la caverna representa el proceso de conocimiento.", "Utiliza la imagen de personas encadenadas en una caverna para representar la ignorancia y el proceso de iluminación."],
+      ["En 'El Señor de los Anillos', la búsqueda para destruir el Anillo Único es una alegoría de la lucha contra el mal.", "Utiliza la historia épica para representar la lucha universal entre el bien y el mal."],
+      ["En 'Animal Farm' de George Orwell, la granja es una alegoría de la Revolución Rusa.", "Utiliza una historia de animales para representar eventos históricos y políticos."],
+      ["En 'El Progreso del Peregrino' de John Bunyan, el viaje del protagonista es una alegoría de la vida cristiana.", "Utiliza un viaje físico para representar el viaje espiritual de un cristiano."],
+      ["En 'Moby Dick' de Herman Melville, la ballena blanca es una alegoría de la búsqueda de lo inalcanzable.", "Utiliza la caza de una ballena para representar la obsesión y la búsqueda de lo imposible."],
+      ["En 'El Principito' de Antoine de Saint-Exupéry, el viaje del príncipe es una alegoría del crecimiento y la madurez.", "Utiliza el viaje interplanetario para representar el proceso de crecimiento personal."],
+      ["En 'La Divina Comedia' de Dante, el viaje a través del Infierno, Purgatorio y Paraíso es una alegoría del alma buscando a Dios.", "Utiliza un viaje por el más allá para representar la búsqueda espiritual."],
+      ["En 'El Mago de Oz', el camino de baldosas amarillas es una alegoría del camino de la vida.", "Utiliza un camino físico para representar el viaje de la vida y el autodescubrimiento."],
+      ["En 'Fahrenheit 451' de Ray Bradbury, la quema de libros es una alegoría de la censura y la supresión del conocimiento.", "Utiliza la destrucción de libros para representar la supresión de ideas y libertad de pensamiento."],
+      ["En 'El Alquimista' de Paulo Coelho, el viaje del pastor es una alegoría de la búsqueda del destino personal.", "Utiliza un viaje físico para representar la búsqueda del propósito en la vida."]
+    ],
+    "Hipálage": [
+      ["Pasó una noche insomne.", "Transfiere la cualidad de 'insomne' de la persona a la noche."],
+      ["Dio un paseo perezoso.", "Transfiere la cualidad de 'perezoso' de la persona al paseo."],
+      ["Vivió una alegre juventud.", "Transfiere la cualidad de 'alegre' de la persona a la juventud."],
+      ["Escribió un artículo furioso.", "Transfiere la cualidad de 'furioso' del autor al artículo."],
+      ["Tuvo un día ocupado.", "Transfiere la cualidad de 'ocupado' de la persona al día."],
+      ["Dio una respuesta ignorante.", "Transfiere la cualidad de 'ignorante' de la persona a la respuesta."],
+      ["Hizo un comentario ciego.", "Transfiere la cualidad de 'ciego' (en sentido figurado) de la persona al comentario."],
+      ["Sufrió una enfermedad triste.", "Transfiere la cualidad de 'triste' de la persona a la enfermedad."],
+      ["Vivió una vida cansada.", "Transfiere la cualidad de 'cansado' de la persona a la vida."],
+      ["Tuvo un sueño ansioso.", "Transfiere la cualidad de 'ansioso' de la persona al sueño."]
+    ],
+    "Sinestesia": [
+      ["Voz aterciopelada.", "Mezcla el sentido del oído (voz) con el del tacto (aterciopelada)."],
+      ["Colores chillones.", "Mezcla el sentido de la vista (colores) con el del oído (chillones)."],
+      ["Silencio amargo.", "Mezcla el sentido del oído (silencio) con el del gusto (amargo)."],
+      ["Mirada fría.", "Mezcla el sentido de la vista (mirada) con el del tacto (fría)."],
+      ["Dulce melodía.", "Mezcla el sentido del gusto (dulce) con el del oído (melodía)."],
+      ["Aroma punzante.", "Mezcla el sentido del olfato (aroma) con el del tacto (punzante)."],
+      ["Sabor brillante.", "Mezcla el sentido del gusto (sabor) con el de la vista (brillante)."],
+      ["Olor oscuro.", "Mezcla el sentido del olfato (olor) con el de la vista (oscuro)."],
+      ["Textura ruidosa.", "Mezcla el sentido del tacto (textura) con el del oído (ruidosa)."],
+      ["Luz suave.", "Mezcla el sentido de la vista (luz) con el del tacto (suave)."]
+    ]
+  }
+};
+
+let currentCategory = null;
+
+function showCategory(category) {
+  currentCategory = category;
+  const buttons = document.getElementById('buttons');
+  buttons.innerHTML = '';
+  buttons.classList.add('active');
+  
+  for (const figure in figurativeLanguage[category]) {
+    const button = document.createElement('button');
+    button.textContent = figure;
+    button.onclick = () => showExample(figure);
+    buttons.appendChild(button);
+  }
+  
+  document.querySelectorAll('.category').forEach(cat => {
+    cat.classList.remove('active');
+  });
+  event.target.classList.add('active');
+}
+
+function showExample(figure) {
+  const display = document.getElementById('display');
+  const examples = figurativeLanguage[currentCategory][figure];
+  const randomIndex = Math.floor(Math.random() * examples.length);
+  const [example, explanation] = examples[randomIndex];
+  display.innerHTML = `<strong>${figure}:</strong><br>"${example}"<br><br><em>Explicación:</em> ${explanation}`;
+}
+</script>
+</body>
+</html>
